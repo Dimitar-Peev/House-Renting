@@ -6,6 +6,52 @@ pipeline {
             steps {
                 checkout scm
             }
+
+            post {
+                always {
+                    echo """
+                    ================ CHECKOUT STAGE FINISHED ================
+                    Job:        ${env.JOB_NAME}
+                    Build:      #${env.BUILD_NUMBER}
+                    Branch:     ${env.BRANCH_NAME}
+                    URL:        ${env.BUILD_URL}
+
+                    Git output is available in the log above.
+                    =========================================================
+                    """
+                }
+
+                success {
+                    echo """
+                    ✔ CHECKOUT SUCCESS
+
+                    Source code was successfully retrieved from the repository.
+                    Pipeline will continue with dependency restore.
+                    """
+                }
+
+                failure {
+                    echo """
+                    ✖ CHECKOUT FAILED
+
+                    Jenkins could not download the source code.
+
+                    Possible reasons:
+                     - wrong Git credentials
+                     - missing repository permissions
+                     - incorrect branch name
+                     - repository unavailable
+
+                    What to check:
+                      • 'authentication failed'
+                      • 'repository not found'
+                      • 'permission denied'
+
+                    Build details:
+                    ${env.BUILD_URL}
+                    """
+                }
+            }
         }
 
         stage('Restore the project') {
@@ -13,7 +59,6 @@ pipeline {
                 bat 'dotnet restore'
             }
         }
-
 
         stage('Build the project') {
             steps {
@@ -27,6 +72,7 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             echo 'Pipeline completed'
