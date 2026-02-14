@@ -64,6 +64,7 @@ ${env.BUILD_URL}
                 success {
                     echo "✔ Dependencies restored successfully (.NET packages downloaded)."
                 }
+                
                 failure {
                     echo """
 ✖ RESTORE FAILED
@@ -86,6 +87,28 @@ Try:
         stage('Build the project') {
             steps {
                 bat 'dotnet build'
+            }
+            
+            post {
+                success {
+                    echo "✔ BUILD SUCCESS — Project compiled without errors."
+                }
+
+                failure {
+                    echo """
+✖ BUILD FAILED
+
+Compilation errors detected.
+
+What to do:
+ - scroll up in the log
+ - look for the FIRST compiler error (the rest are consequences)
+ - usually marked as: error CSxxxx
+
+Tip:
+Do NOT debug the last error. Always fix the first one.
+"""
+                }
             }
         }
 
