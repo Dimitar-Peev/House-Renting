@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        
+
         stage('Checkout the repository') {
             steps {
                 checkout scm
@@ -59,6 +59,28 @@ ${env.BUILD_URL}
             steps {
                 bat 'dotnet restore'
             }
+
+            post {
+                success {
+                    echo "✔ Dependencies restored successfully (.NET packages downloaded)."
+                }
+                failure {
+                    echo """
+✖ RESTORE FAILED
+
+NuGet packages could not be restored.
+
+Common causes:
+ - no internet access from Jenkins agent
+ - NuGet.org outage
+ - corrupted cache
+ - missing SDK version
+
+Try:
+  dotnet nuget locals all --clear
+"""
+                }
+            }
         }
 
         stage('Build the project') {
@@ -72,7 +94,7 @@ ${env.BUILD_URL}
                 bat 'dotnet test'
             }
 
-             post {
+            post {
                 success {
                     echo """
 ✔ TESTS PASSED
