@@ -165,9 +165,10 @@ Possible causes:
         }
         success {
             echo 'Build succeeded'
+			cleanWs()
         }
         failure {
-            echo 'Build failed'
+            echo 'Build failed, keeping workspace for debugging'
         }
     }
 }
